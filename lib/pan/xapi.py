@@ -590,6 +590,7 @@ class PanXapi:
             arg = args.pop(0)
             if args:
                 result = re.search(r'^"(.*)"$', args[0])
+                self._log(DEBUG2,"RESULT from RE: {}".format(result))
                 if result:
                     obj.append('<%s>' % arg)
                     obj.append(result.group(1))
@@ -597,21 +598,20 @@ class PanXapi:
                     args.pop(0)
                     _cmd_xml(args, obj)
                 else:
+                    self._log(DEBUG2, "NO re result. obj.append for <{}></{}>".format(arg,arg))
                     obj.append('<%s>' % arg)
                     _cmd_xml(args, obj)
                     obj.append('</%s>' % arg)
             else:
-                obj.append('<%s>' % arg)
+                #The case where the argument string is not meant to be inside <></> structure
+                self._log(DEBUG2, "*** else obj.append for <{}></{}>".format(arg,arg))
+                obj.append('%s' % arg)
                 _cmd_xml(args, obj)
-                obj.append('</%s>' % arg)
-
         args = cmd.split()
         obj = []
         _cmd_xml(args, obj)
         xml = ''.join(obj)
-
         self._log(DEBUG2, 'cmd_xml: "%s"', xml)
-
         return xml
 
     def keygen(self, extra_qs=None):
